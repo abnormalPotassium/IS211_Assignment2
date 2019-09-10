@@ -17,9 +17,10 @@ def processData(rawFile):
         linenum += 1
         try:
             row[2] = datetime.datetime.strptime(row[2],'%d/%m/%Y')
-            birthdict[int(row[0])] = (row[1], row[2])
         except ValueError:
-            logging.error(f'Error processing line #<{linenum}>, for ID #<{row[0]}>')
+            assignment2.error(f'Error processing line #{linenum}, for ID #{row[0]}')
+        else:
+            birthdict[int(row[0])] = (row[1], row[2])
     return birthdict
 
 def displayPerson(id, personData):
@@ -28,6 +29,13 @@ def displayPerson(id, personData):
     except KeyError:
         print("No user found with that id")
     
+assignment2 = logging.getLogger('assignment2')
+assignment2.setLevel(logging.ERROR)
+fh = logging.FileHandler('errors.log')
+fh.setLevel(logging.ERROR)
+formatter = logging.Formatter('%(message)s')
+fh.setFormatter(formatter)
+assignment2.addHandler(fh)
 
 def main():
     parser = argparse.ArgumentParser()
@@ -39,10 +47,7 @@ def main():
             csvData = downloadData(args.url)
         except (ValueError, urllib.request.HTTPError):
             print("You have an entered an invalid link, please enter a valid link!")
-
-        logging.basicConfig(filename='errors.log', level=logging.ERROR, format='%(message)s')
-        logging.getLogger('assignment2')
-
+        
         personData = processData(csvData)
 
         runtime = True
