@@ -17,20 +17,17 @@ def processData(rawFile):
         linenum += 1
         try:
             row[2] = datetime.datetime.strptime(row[2],'%d/%m/%Y')
+            birthdict[int(row[0])] = (row[1], row[2])
         except ValueError:
-            id = int(row[0])
-            logging.error(f'Error processing line #<{linenum}>, for ID #<{id}>')
-        birthdict[int(row[0])] = (row[1], row[2])
+            logging.error(f'Error processing line #<{linenum}>, for ID #<{row[0]}>')
     return birthdict
 
 def displayPerson(id, personData):
     try:
-        print(personData[id][1])
-        print(f"""Person ID #{id} is {personData[id][1]} with a birthday of {personData[id][2].datetime.datetime.strftime('%Y-%m-%d')
-        }""")
-
+        print(f"Person ID #{id} is {personData[id][0]} with a birthday of {personData[id][1].strftime('%Y-%m-%d')}")
     except KeyError:
         print("No user found with that id")
+    
 
 def main():
     parser = argparse.ArgumentParser()
@@ -47,17 +44,19 @@ def main():
         logging.getLogger('assignment2')
 
         personData = processData(csvData)
-        print(personData)
 
-        runtime = personData != None
-   
+        runtime = True
         while runtime:
-            search = input('Type in the ID that you would like to search\n')
-            if int(search) > 0:
-                print(displayPerson(search, personData))
-        
-            elif int(search) <= 0:
-                runtime = False
+            try:
+                search = int(input('Type in the ID that you would like to search or type a number less than 1 to exit.\n'))
+                if search > 0:
+                    displayPerson(search, personData)
+                elif search <= 0:
+                    print("Exiting Program")
+                    runtime = False
+            except:
+                print("This is not a valid ID or even a number")
+                pass
 
 if __name__ == '__main__':
     main()
